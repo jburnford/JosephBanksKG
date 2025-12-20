@@ -1,0 +1,423 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 900px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 900px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+
+<div style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px 0 10px 0; background: white;">
+    <h1 style="margin: 0; font-size: 24px; color: #333;">Sir Joseph Banks' Correspondence Network</h1>
+    <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Top 120 correspondents from Dawson Calendar (1765-1820) • Drag nodes to explore • Scroll to zoom</p>
+    <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">Solid lines: correspondence | Dashed lines: mentioned together in letters | Node size: letter volume</p>
+</div>
+
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#E15759", "font": {"color": "#333333"}, "id": "Sir Joseph Banks", "label": "Sir Joseph Banks", "shape": "dot", "size": 60, "title": "\u003cb\u003eSir Joseph Banks\u003c/b\u003e\u003cbr\u003eCentral figure"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Sir Charles Blagden", "label": "Sir Charles Blagden", "shape": "dot", "size": 25.633207345338917, "title": "\u003cb\u003eSir Charles Blagden\u003c/b\u003e\u003cbr\u003eLetters: 356"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Pierre Marie Auguste Broussonet", "label": "Pierre Marie Auguste Broussonet", "shape": "dot", "size": 22.71582433531529, "title": "\u003cb\u003ePierre Marie Auguste Broussonet\u003c/b\u003e\u003cbr\u003eLetters: 134"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Thomas Andrew Knight", "label": "Thomas Andrew Knight", "shape": "dot", "size": 19.140716200112923, "title": "\u003cb\u003eThomas Andrew Knight\u003c/b\u003e\u003cbr\u003eLetters: 40"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Matthew Boulton", "label": "Matthew Boulton", "shape": "dot", "size": 22.991636821292346, "title": "\u003cb\u003eMatthew Boulton\u003c/b\u003e\u003cbr\u003eLetters: 147"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Giovanni Valentino Mattia Fabbroni", "label": "Giovanni Valentino Mattia Fabbroni", "shape": "dot", "size": 18.66604418446824, "title": "\u003cb\u003eGiovanni Valentino Mattia Fabbroni\u003c/b\u003e\u003cbr\u003eLetters: 34"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "label": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "shape": "dot", "size": 18.48952268439944, "title": "\u003cb\u003eCharles Louis L\u0027H\u00e9ritier De Brutelle\u003c/b\u003e\u003cbr\u003eLetters: 32"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Dr. William Roxburgh", "label": "Dr. William Roxburgh", "shape": "dot", "size": 19.73606901628444, "title": "\u003cb\u003eDr. William Roxburgh\u003c/b\u003e\u003cbr\u003eLetters: 49"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "James Mario Matra", "label": "James Mario Matra", "shape": "dot", "size": 18.832753737932673, "title": "\u003cb\u003eJames Mario Matra\u003c/b\u003e\u003cbr\u003eLetters: 36"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Abb\u00e9 Theodore Augustin Mann", "label": "Abb\u00e9 Theodore Augustin Mann", "shape": "dot", "size": 18.101887489959424, "title": "\u003cb\u003eAbb\u00e9 Theodore Augustin Mann\u003c/b\u003e\u003cbr\u003eLetters: 28"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Dr. John Hope", "label": "Dr. John Hope", "shape": "dot", "size": 17.774289614064447, "title": "\u003cb\u003eDr. John Hope\u003c/b\u003e\u003cbr\u003eLetters: 25"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Lorenz Florens Friedrich Von Crell", "label": "Lorenz Florens Friedrich Von Crell", "shape": "dot", "size": 17.133567313170268, "title": "\u003cb\u003eLorenz Florens Friedrich Von Crell\u003c/b\u003e\u003cbr\u003eLetters: 20"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Sir William Herschel", "label": "Sir William Herschel", "shape": "dot", "size": 17.273127360074948, "title": "\u003cb\u003eSir William Herschel\u003c/b\u003e\u003cbr\u003eLetters: 21"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Maskelyne", "label": "Maskelyne", "shape": "dot", "size": 18.101887489959424, "title": "\u003cb\u003eMaskelyne\u003c/b\u003e\u003cbr\u003eLetters: 28"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Mr. Thomas Coltman", "label": "Mr. Thomas Coltman", "shape": "dot", "size": 16.98719682066197, "title": "\u003cb\u003eMr. Thomas Coltman\u003c/b\u003e\u003cbr\u003eLetters: 19"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Robert K Y D", "label": "Robert K Y D", "shape": "dot", "size": 16.98719682066197, "title": "\u003cb\u003eRobert K Y D\u003c/b\u003e\u003cbr\u003eLetters: 19"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "George Nicol", "label": "George Nicol", "shape": "dot", "size": 17.53416149104384, "title": "\u003cb\u003eGeorge Nicol\u003c/b\u003e\u003cbr\u003eLetters: 23"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Jan Deutz", "label": "Jan Deutz", "shape": "dot", "size": 17.53416149104384, "title": "\u003cb\u003eJan Deutz\u003c/b\u003e\u003cbr\u003eLetters: 23"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Captain William Bligh", "label": "Captain William Bligh", "shape": "dot", "size": 16.671115273688493, "title": "\u003cb\u003eCaptain William Bligh\u003c/b\u003e\u003cbr\u003eLetters: 17"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Sir Stephen Cottrell", "label": "Sir Stephen Cottrell", "shape": "dot", "size": 16.671115273688493, "title": "\u003cb\u003eSir Stephen Cottrell\u003c/b\u003e\u003cbr\u003eLetters: 17"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Townsend Aiton", "label": "William Townsend Aiton", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eWilliam Townsend Aiton\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Sir Thomas Frankland", "label": "Sir Thomas Frankland", "shape": "dot", "size": 17.273127360074948, "title": "\u003cb\u003eSir Thomas Frankland\u003c/b\u003e\u003cbr\u003eLetters: 21"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Antoine Laurent De Jussieu", "label": "Antoine Laurent De Jussieu", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eAntoine Laurent De Jussieu\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Thomas South", "label": "Thomas South", "shape": "dot", "size": 16.98719682066197, "title": "\u003cb\u003eThomas South\u003c/b\u003e\u003cbr\u003eLetters: 19"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "George Caley", "label": "George Caley", "shape": "dot", "size": 18.39720770839918, "title": "\u003cb\u003eGeorge Caley\u003c/b\u003e\u003cbr\u003eLetters: 31"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Peter Simon Pallas", "label": "Peter Simon Pallas", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003ePeter Simon Pallas\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "John Parkinson", "label": "John Parkinson", "shape": "dot", "size": 18.101887489959424, "title": "\u003cb\u003eJohn Parkinson\u003c/b\u003e\u003cbr\u003eLetters: 28"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dr. James Edward Smith", "label": "Dr. James Edward Smith", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003eDr. James Edward Smith\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "\u2014See Pelham, Charles Andersonyonge, George, 5Th Yarborough", "label": "\u2014See Pelham, Charles Andersonyonge, George, 5Th Yarborough", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003e\u2014See Pelham, Charles Andersonyonge, George, 5Th Yarborough\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Jean Nicolas Sebastien Allamand", "label": "Jean Nicolas Sebastien Allamand", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eJean Nicolas Sebastien Allamand\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John Duncan", "label": "John Duncan", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eJohn Duncan\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Johann Reinhold Forster", "label": "Johann Reinhold Forster", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eJohann Reinhold Forster\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Friedrich Conrad Hornemann", "label": "Friedrich Conrad Hornemann", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eFriedrich Conrad Hornemann\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Captain John Hunter", "label": "Captain John Hunter", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eCaptain John Hunter\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Johann Christian Fabricius", "label": "Johann Christian Fabricius", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eJohann Christian Fabricius\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dec R.S.: L. \u0026 P.", "label": "Dec R.S.: L. \u0026 P.", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eDec R.S.: L. \u0026 P.\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Mungo Park", "label": "Mungo Park", "shape": "dot", "size": 16.98719682066197, "title": "\u003cb\u003eMungo Park\u003c/b\u003e\u003cbr\u003eLetters: 19"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Patrick, Russell", "label": "Patrick, Russell", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003ePatrick, Russell\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Sir John Sinclair", "label": "Sir John Sinclair", "shape": "dot", "size": 16.83331693749932, "title": "\u003cb\u003eSir John Sinclair\u003c/b\u003e\u003cbr\u003eLetters: 18"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Bryan Edwards", "label": "Bryan Edwards", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003eBryan Edwards\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Charles Favargill", "label": "Charles Favargill", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eCharles Favargill\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Helenus, Scott", "label": "Helenus, Scott", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eHelenus, Scott\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "James, Bruce", "label": "James, Bruce", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eJames, Bruce\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Pieter Everhard Camper", "label": "Pieter Everhard Camper", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003ePieter Everhard Camper\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Jonas Dryander", "label": "Jonas Dryander", "shape": "dot", "size": 17.887510598012987, "title": "\u003cb\u003eJonas Dryander\u003c/b\u003e\u003cbr\u003eLetters: 26"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Sir John Leslie", "label": "Sir John Leslie", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003eSir John Leslie\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Thomas James, Mathias", "label": "Thomas James, Mathias", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eThomas James, Mathias\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Henry De Ponthieu", "label": "Henry De Ponthieu", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eHenry De Ponthieu\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Joshua Steele", "label": "Joshua Steele", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eJoshua Steele\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dr. Marcus Eliezer Bloch", "label": "Dr. Marcus Eliezer Bloch", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eDr. Marcus Eliezer Bloch\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Richard Ellison", "label": "Richard Ellison", "shape": "dot", "size": 17.273127360074948, "title": "\u003cb\u003eRichard Ellison\u003c/b\u003e\u003cbr\u003eLetters: 21"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Matthew, Guthrie", "label": "Matthew, Guthrie", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eMatthew, Guthrie\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Mr. John Maitland", "label": "Mr. John Maitland", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eMr. John Maitland\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "George Augustus, 6Th Shuckburgh-Evelyn", "label": "George Augustus, 6Th Shuckburgh-Evelyn", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eGeorge Augustus, 6Th Shuckburgh-Evelyn\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Hester Stanhope", "label": "Hester Stanhope", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eHester Stanhope\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Andr\u00e9 Thouin", "label": "Andr\u00e9 Thouin", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eAndr\u00e9 Thouin\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Nathaniel Wallich", "label": "Nathaniel Wallich", "shape": "dot", "size": 17.133567313170268, "title": "\u003cb\u003eNathaniel Wallich\u003c/b\u003e\u003cbr\u003eLetters: 20"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Johann, Hedwig", "label": "Johann, Hedwig", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eJohann, Hedwig\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John King", "label": "John King", "shape": "dot", "size": 16.83331693749932, "title": "\u003cb\u003eJohn King\u003c/b\u003e\u003cbr\u003eLetters: 18"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Jean Baptiste, Leroy", "label": "Jean Baptiste, Leroy", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eJean Baptiste, Leroy\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Mr. Benjamin Stephenson", "label": "Mr. Benjamin Stephenson", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eMr. Benjamin Stephenson\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John, Symmons", "label": "John, Symmons", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eJohn, Symmons\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Domingos Vandelli", "label": "Domingos Vandelli", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eDomingos Vandelli\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Pieter Boddaert", "label": "Pieter Boddaert", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003ePieter Boddaert\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Paul Dietrich Giseke", "label": "Paul Dietrich Giseke", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003ePaul Dietrich Giseke\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dr. Robert Harrington", "label": "Dr. Robert Harrington", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eDr. Robert Harrington\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Henry Johnson", "label": "Henry Johnson", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eHenry Johnson\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "William Marsden", "label": "William Marsden", "shape": "dot", "size": 18.832753737932673, "title": "\u003cb\u003eWilliam Marsden\u003c/b\u003e\u003cbr\u003eLetters: 36"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Shepherd", "label": "Shepherd", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eShepherd\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Alexander Duncan", "label": "Alexander Duncan", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eAlexander Duncan\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Jan Ingenhousz", "label": "Jan Ingenhousz", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eJan Ingenhousz\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Abb\u00e9 Pierre Andr\u00e9 Pourret", "label": "Abb\u00e9 Pierre Andr\u00e9 Pourret", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eAbb\u00e9 Pierre Andr\u00e9 Pourret\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John Reeves", "label": "John Reeves", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eJohn Reeves\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dr. Daniel Solander", "label": "Dr. Daniel Solander", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eDr. Daniel Solander\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Hermann Treschow", "label": "Hermann Treschow", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eHermann Treschow\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John Churchman", "label": "John Churchman", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eJohn Churchman\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Greville", "label": "Greville", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eGreville\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Olof Swartz", "label": "Olof Swartz", "shape": "dot", "size": 17.133567313170268, "title": "\u003cb\u003eOlof Swartz\u003c/b\u003e\u003cbr\u003eLetters: 20"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Robert Bowyer", "label": "Robert Bowyer", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eRobert Bowyer\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Robert Brown", "label": "Robert Brown", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eRobert Brown\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John Lightfoot", "label": "John Lightfoot", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eJohn Lightfoot\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Francis Masson", "label": "Francis Masson", "shape": "dot", "size": 14.907755278982137, "title": "\u003cb\u003eFrancis Masson\u003c/b\u003e\u003cbr\u003eLetters: 9"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "John Pinkerton", "label": "John Pinkerton", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eJohn Pinkerton\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Scoresby", "label": "Scoresby", "shape": "dot", "size": 16.671115273688493, "title": "\u003cb\u003eScoresby\u003c/b\u003e\u003cbr\u003eLetters: 17"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Windham", "label": "William Windham", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eWilliam Windham\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Charles Jenkinson", "label": "Charles Jenkinson", "shape": "dot", "size": 21.183347464017316, "title": "\u003cb\u003eCharles Jenkinson\u003c/b\u003e\u003cbr\u003eLetters: 80"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Robert Banks Jenkinson, 2nd Earl of Liverpool", "label": "Robert Banks Jenkinson, 2nd Earl of Liverpool", "shape": "dot", "size": 17.99661353052561, "title": "\u003cb\u003eRobert Banks Jenkinson, 2nd Earl of Liverpool\u003c/b\u003e\u003cbr\u003eLetters: 27"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Roscoe", "label": "William Roscoe", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eWilliam Roscoe\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Allan Cunningham", "label": "Allan Cunningham", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eAllan Cunningham\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Thomas Manning", "label": "Thomas Manning", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eThomas Manning\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Charles Vallancey", "label": "Charles Vallancey", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eCharles Vallancey\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Jean Charreti\u00e9", "label": "Jean Charreti\u00e9", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eJean Charreti\u00e9\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Samuel Tysssen", "label": "Samuel Tysssen", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eSamuel Tysssen\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "John Lloyd", "label": "John Lloyd", "shape": "dot", "size": 20.788039631123947, "title": "\u003cb\u003eJohn Lloyd\u003c/b\u003e\u003cbr\u003eLetters: 70"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Knight", "label": "Knight", "shape": "dot", "size": 20.476649250079014, "title": "\u003cb\u003eKnight\u003c/b\u003e\u003cbr\u003eLetters: 63"}, {"color": "#4E79A7", "font": {"color": "#333333"}, "id": "Sir James Smith", "label": "Sir James Smith", "shape": "dot", "size": 19.853731155744285, "title": "\u003cb\u003eSir James Smith\u003c/b\u003e\u003cbr\u003eLetters: 51"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "EASTINDIACOMPANY_", "label": "EASTINDIACOMPANY_", "shape": "dot", "size": 18.579081573848484, "title": "\u003cb\u003eEASTINDIACOMPANY_\u003c/b\u003e\u003cbr\u003eLetters: 33"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Sir William Hamilton", "label": "Sir William Hamilton", "shape": "dot", "size": 18.39720770839918, "title": "\u003cb\u003eSir William Hamilton\u003c/b\u003e\u003cbr\u003eLetters: 31"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Everard Home", "label": "Everard Home", "shape": "dot", "size": 17.6566274746046, "title": "\u003cb\u003eEverard Home\u003c/b\u003e\u003cbr\u003eLetters: 24"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Robert Greville", "label": "Robert Greville", "shape": "dot", "size": 17.40648264778745, "title": "\u003cb\u003eRobert Greville\u003c/b\u003e\u003cbr\u003eLetters: 22"}, {"color": "#76B7B2", "font": {"color": "#333333"}, "id": "Arthur Young", "label": "Arthur Young", "shape": "dot", "size": 17.273127360074948, "title": "\u003cb\u003eArthur Young\u003c/b\u003e\u003cbr\u003eLetters: 21"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "APPENDIX_", "label": "APPENDIX_", "shape": "dot", "size": 16.83331693749932, "title": "\u003cb\u003eAPPENDIX_\u003c/b\u003e\u003cbr\u003eLetters: 18"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Blumenbach", "label": "Blumenbach", "shape": "dot", "size": 16.671115273688493, "title": "\u003cb\u003eBlumenbach\u003c/b\u003e\u003cbr\u003eLetters: 17"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "George Montagu", "label": "George Montagu", "shape": "dot", "size": 16.671115273688493, "title": "\u003cb\u003eGeorge Montagu\u003c/b\u003e\u003cbr\u003eLetters: 17"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Mark\u2014See Favargill, Charles. Everson", "label": "Mark\u2014See Favargill, Charles. Everson", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eMark\u2014See Favargill, Charles. Everson\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "LHRITIERDEBRUTELLE_Charles", "label": "LHRITIERDEBRUTELLE_Charles", "shape": "dot", "size": 16.49964003216865, "title": "\u003cb\u003eLHRITIERDEBRUTELLE_Charles\u003c/b\u003e\u003cbr\u003eLetters: 16"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Lewis Weston Dillwyn", "label": "Lewis Weston Dillwyn", "shape": "dot", "size": 16.317766166719345, "title": "\u003cb\u003eLewis Weston Dillwyn\u003c/b\u003e\u003cbr\u003eLetters: 15"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Samuel Flinders", "label": "Samuel Flinders", "shape": "dot", "size": 16.12415060330663, "title": "\u003cb\u003eSamuel Flinders\u003c/b\u003e\u003cbr\u003eLetters: 14"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Adam Afzelius", "label": "Adam Afzelius", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eAdam Afzelius\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Delambre", "label": "Delambre", "shape": "dot", "size": 15.69484807238461, "title": "\u003cb\u003eDelambre\u003c/b\u003e\u003cbr\u003eLetters: 12"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Lorenz Crell", "label": "Lorenz Crell", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eLorenz Crell\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Hooker", "label": "William Hooker", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eWilliam Hooker\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Martin\u2014See Marum Van Marum", "label": "Martin\u2014See Marum Van Marum", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eMartin\u2014See Marum Van Marum\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Sir George Staunton", "label": "Sir George Staunton", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eSir George Staunton\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Forster", "label": "Forster", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eForster\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Richard Gough", "label": "Richard Gough", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eRichard Gough\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Aiton", "label": "William Aiton", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eWilliam Aiton\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Murray", "label": "Murray", "shape": "dot", "size": 15.454719949364002, "title": "\u003cb\u003eMurray\u003c/b\u003e\u003cbr\u003eLetters: 11"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Morton Eden, 1St Baron Henley", "label": "Morton Eden, 1St Baron Henley", "shape": "dot", "size": 15.917171988845777, "title": "\u003cb\u003eMorton Eden, 1St Baron Henley\u003c/b\u003e\u003cbr\u003eLetters: 13"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "Dr. John Hunter", "label": "Dr. John Hunter", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eDr. John Hunter\u003c/b\u003e\u003cbr\u003eLetters: 10"}, {"color": "#A0CBE8", "font": {"color": "#333333"}, "id": "William Pitt", "label": "William Pitt", "shape": "dot", "size": 15.193685818395112, "title": "\u003cb\u003eWilliam Pitt\u003c/b\u003e\u003cbr\u003eLetters: 10"}]);
+                  edges = new vis.DataSet([{"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Charles Blagden", "title": "158 letters", "to": "Sir Joseph Banks", "value": 158, "width": 7.603356303330347}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Pierre Marie Auguste Broussonet", "title": "114 letters", "to": "Sir Joseph Banks", "value": 114, "width": 7.117398192544876}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Thomas Andrew Knight", "title": "40 letters", "to": "Sir Joseph Banks", "value": 40, "width": 5.5703581000564615}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Matthew Boulton", "title": "37 letters", "to": "Sir Joseph Banks", "value": 37, "width": 5.4563792395895785}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Giovanni Valentino Mattia Fabbroni", "title": "34 letters", "to": "Sir Joseph Banks", "value": 34, "width": 5.3330220922341205}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "32 letters", "to": "Sir Joseph Banks", "value": 32, "width": 5.244761342199721}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. William Roxburgh", "title": "32 letters", "to": "Sir Joseph Banks", "value": 32, "width": 5.244761342199721}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "James Mario Matra", "title": "29 letters", "to": "Sir Joseph Banks", "value": 29, "width": 5.101796072493233}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Abb\u00e9 Theodore Augustin Mann", "title": "28 letters", "to": "Sir Joseph Banks", "value": 28, "width": 5.050943744979711}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. John Hope", "title": "21 letters", "to": "Sir Joseph Banks", "value": 21, "width": 4.636563680037474}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Lorenz Florens Friedrich Von Crell", "title": "20 letters", "to": "Sir Joseph Banks", "value": 20, "width": 4.566783656585135}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir William Herschel", "title": "20 letters", "to": "Sir Joseph Banks", "value": 20, "width": 4.566783656585135}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Maskelyne", "title": "20 letters", "to": "Sir Joseph Banks", "value": 20, "width": 4.566783656585135}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Mr. Thomas Coltman", "title": "19 letters", "to": "Sir Joseph Banks", "value": 19, "width": 4.4935984103309865}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Robert K Y D", "title": "19 letters", "to": "Sir Joseph Banks", "value": 19, "width": 4.4935984103309865}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "George Nicol", "title": "19 letters", "to": "Sir Joseph Banks", "value": 19, "width": 4.4935984103309865}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jan Deutz", "title": "18 letters", "to": "Sir Joseph Banks", "value": 18, "width": 4.41665846874966}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Captain William Bligh", "title": "17 letters", "to": "Sir Joseph Banks", "value": 17, "width": 4.335557636844246}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Stephen Cottrell", "title": "17 letters", "to": "Sir Joseph Banks", "value": 17, "width": 4.335557636844246}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "William Townsend Aiton", "title": "16 letters", "to": "Sir Joseph Banks", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Thomas Frankland", "title": "16 letters", "to": "Sir Joseph Banks", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Antoine Laurent De Jussieu", "title": "16 letters", "to": "Sir Joseph Banks", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Thomas South", "title": "16 letters", "to": "Sir Joseph Banks", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "George Caley", "title": "15 letters", "to": "Sir Joseph Banks", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Peter Simon Pallas", "title": "15 letters", "to": "Sir Joseph Banks", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Parkinson", "title": "15 letters", "to": "Sir Joseph Banks", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. James Edward Smith", "title": "15 letters", "to": "Sir Joseph Banks", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "\u2014See Pelham, Charles Andersonyonge, George, 5Th Yarborough", "title": "15 letters", "to": "Sir Joseph Banks", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jean Nicolas Sebastien Allamand", "title": "14 letters", "to": "Sir Joseph Banks", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Duncan", "title": "14 letters", "to": "Sir Joseph Banks", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Johann Reinhold Forster", "title": "14 letters", "to": "Sir Joseph Banks", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Friedrich Conrad Hornemann", "title": "14 letters", "to": "Sir Joseph Banks", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Captain John Hunter", "title": "14 letters", "to": "Sir Joseph Banks", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Johann Christian Fabricius", "title": "13 letters", "to": "Sir Joseph Banks", "value": 13, "width": 3.9585859944228883}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dec R.S.: L. \u0026 P.", "title": "13 letters", "to": "Sir Joseph Banks", "value": 13, "width": 3.9585859944228883}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Mungo Park", "title": "13 letters", "to": "Sir Joseph Banks", "value": 13, "width": 3.9585859944228883}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Patrick, Russell", "title": "13 letters", "to": "Sir Joseph Banks", "value": 13, "width": 3.9585859944228883}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir John Sinclair", "title": "13 letters", "to": "Sir Joseph Banks", "value": 13, "width": 3.9585859944228883}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Bryan Edwards", "title": "12 letters", "to": "Sir Joseph Banks", "value": 12, "width": 3.8474240361923053}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Charles Favargill", "title": "12 letters", "to": "Sir Joseph Banks", "value": 12, "width": 3.8474240361923053}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Helenus, Scott", "title": "12 letters", "to": "Sir Joseph Banks", "value": 12, "width": 3.8474240361923053}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "James, Bruce", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Pieter Everhard Camper", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jonas Dryander", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir John Leslie", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Thomas James, Mathias", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Henry De Ponthieu", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Joshua Steele", "title": "11 letters", "to": "Sir Joseph Banks", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. Marcus Eliezer Bloch", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Richard Ellison", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Matthew, Guthrie", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Mr. John Maitland", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "George Augustus, 6Th Shuckburgh-Evelyn", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Hester Stanhope", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Andr\u00e9 Thouin", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Nathaniel Wallich", "title": "10 letters", "to": "Sir Joseph Banks", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Johann, Hedwig", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John King", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jean Baptiste, Leroy", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Mr. Benjamin Stephenson", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John, Symmons", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Domingos Vandelli", "title": "9 letters", "to": "Sir Joseph Banks", "value": 9, "width": 3.453877639491069}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Pieter Boddaert", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Paul Dietrich Giseke", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. Robert Harrington", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Henry Johnson", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "William Marsden", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Shepherd", "title": "8 letters", "to": "Sir Joseph Banks", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Alexander Duncan", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jan Ingenhousz", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Abb\u00e9 Pierre Andr\u00e9 Pourret", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Reeves", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Dr. Daniel Solander", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Hermann Treschow", "title": "7 letters", "to": "Sir Joseph Banks", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Churchman", "title": "6 letters", "to": "Sir Joseph Banks", "value": 6, "width": 2.9188652235829697}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Greville", "title": "6 letters", "to": "Sir Joseph Banks", "value": 6, "width": 2.9188652235829697}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Olof Swartz", "title": "6 letters", "to": "Sir Joseph Banks", "value": 6, "width": 2.9188652235829697}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Robert Bowyer", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Robert Brown", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Lightfoot", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Francis Masson", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "John Pinkerton", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Scoresby", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "William Windham", "title": "5 letters", "to": "Sir Joseph Banks", "value": 5, "width": 2.6876392038420827}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Charles Jenkinson", "title": "4 letters", "to": "Sir Joseph Banks", "value": 4, "width": 2.4141568686511503}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Robert Banks Jenkinson, 2nd Earl of Liverpool", "title": "4 letters", "to": "Sir Joseph Banks", "value": 4, "width": 2.4141568686511503}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "William Roscoe", "title": "4 letters", "to": "Sir Joseph Banks", "value": 4, "width": 2.4141568686511503}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Allan Cunningham", "title": "3 letters", "to": "Sir Joseph Banks", "value": 3, "width": 2.0794415416798357}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Thomas Manning", "title": "3 letters", "to": "Sir Joseph Banks", "value": 3, "width": 2.0794415416798357}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Charles Vallancey", "title": "3 letters", "to": "Sir Joseph Banks", "value": 3, "width": 2.0794415416798357}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Jean Charreti\u00e9", "title": "2 letters", "to": "Sir Joseph Banks", "value": 2, "width": 1.6479184330021643}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Samuel Tysssen", "title": "1 letters", "to": "Sir Joseph Banks", "value": 1, "width": 1.0397207708399179}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "70 letters", "to": "John Lloyd", "value": 70, "width": 6.394019815561974}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "57 letters", "to": "Knight", "value": 57, "width": 6.090664515819629}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "51 letters", "to": "Sir James Smith", "value": 51, "width": 5.9268655778721415}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "33 letters", "to": "EASTINDIACOMPANY_", "value": 33, "width": 5.289540786924242}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "31 letters", "to": "Sir William Hamilton", "value": 31, "width": 5.19860385419959}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "24 letters", "to": "Everard Home", "value": 24, "width": 4.828313737302301}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "22 letters", "to": "Robert Greville", "value": 22, "width": 4.7032413238937245}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "21 letters", "to": "Arthur Young", "value": 21, "width": 4.636563680037474}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "18 letters", "to": "APPENDIX_", "value": 18, "width": 4.41665846874966}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "17 letters", "to": "Blumenbach", "value": 17, "width": 4.335557636844246}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "17 letters", "to": "George Montagu", "value": 17, "width": 4.335557636844246}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "16 letters", "to": "Mark\u2014See Favargill, Charles. Everson", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "16 letters", "to": "LHRITIERDEBRUTELLE_Charles", "value": 16, "width": 4.249820016084325}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "15 letters", "to": "Lewis Weston Dillwyn", "value": 15, "width": 4.1588830833596715}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "14 letters", "to": "Samuel Flinders", "value": 14, "width": 4.062075301653315}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "12 letters", "to": "Adam Afzelius", "value": 12, "width": 3.8474240361923053}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "12 letters", "to": "Delambre", "value": 12, "width": 3.8474240361923053}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "11 letters", "to": "Lorenz Crell", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "11 letters", "to": "William Hooker", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "11 letters", "to": "Martin\u2014See Marum Van Marum", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "11 letters", "to": "Sir George Staunton", "value": 11, "width": 3.7273599746820008}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "10 letters", "to": "Forster", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "10 letters", "to": "Richard Gough", "value": 10, "width": 3.596842909197556}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "8 letters", "to": "William Aiton", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "8 letters", "to": "Murray", "value": 8, "width": 3.295836866004329}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "7 letters", "to": "Morton Eden, 1St Baron Henley", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "7 letters", "to": "Dr. John Hunter", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(70, 130, 180, 0.4)", "highlight": "#4E79A7"}, "from": "Sir Joseph Banks", "title": "7 letters", "to": "William Pitt", "value": 7, "width": 3.1191623125197534}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Bryan Edwards", "title": "Mentioned together: 8 times", "to": "Mungo Park", "value": 2.4, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Sir Charles Blagden", "title": "Mentioned together: 17 times", "to": "Sir William Herschel", "value": 5.1, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dec R.S.: L. \u0026 P.", "title": "Mentioned together: 6 times", "to": "Sir William Herschel", "value": 1.7999999999999998, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dr. William Roxburgh", "title": "Mentioned together: 6 times", "to": "Patrick, Russell", "value": 1.7999999999999998, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "Mentioned together: 12 times", "to": "Pierre Marie Auguste Broussonet", "value": 3.5999999999999996, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Antoine Laurent De Jussieu", "title": "Mentioned together: 8 times", "to": "Pierre Marie Auguste Broussonet", "value": 2.4, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Pierre Marie Auguste Broussonet", "title": "Mentioned together: 11 times", "to": "Sir Charles Blagden", "value": 3.3, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Andr\u00e9 Thouin", "title": "Mentioned together: 5 times", "to": "Pierre Marie Auguste Broussonet", "value": 1.5, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "George Augustus, 6Th Shuckburgh-Evelyn", "title": "Mentioned together: 4 times", "to": "William Windham", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "Mentioned together: 12 times", "to": "Jonas Dryander", "value": 3.5999999999999996, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Lorenz Florens Friedrich Von Crell", "title": "Mentioned together: 4 times", "to": "Sir Charles Blagden", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Jonas Dryander", "title": "Mentioned together: 14 times", "to": "Sir Charles Blagden", "value": 4.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Arthur Young", "title": "Mentioned together: 4 times", "to": "Pierre Marie Auguste Broussonet", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Abb\u00e9 Pierre Andr\u00e9 Pourret", "title": "Mentioned together: 7 times", "to": "Pierre Marie Auguste Broussonet", "value": 2.1, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Pierre Marie Auguste Broussonet", "title": "Mentioned together: 4 times", "to": "William Aiton", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "Mentioned together: 3 times", "to": "Olof Swartz", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Captain John Hunter", "title": "Mentioned together: 3 times", "to": "Pieter Everhard Camper", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "Mentioned together: 7 times", "to": "Sir Charles Blagden", "value": 2.1, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Alexander Duncan", "title": "Mentioned together: 3 times", "to": "John Duncan", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Greville", "title": "Mentioned together: 3 times", "to": "Johann Christian Fabricius", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Pierre Marie Auguste Broussonet", "title": "Mentioned together: 3 times", "to": "Sir John Sinclair", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Captain John Hunter", "title": "Mentioned together: 3 times", "to": "Pierre Marie Auguste Broussonet", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Johann Reinhold Forster", "title": "Mentioned together: 3 times", "to": "Sir Charles Blagden", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "James Mario Matra", "title": "Mentioned together: 3 times", "to": "William Marsden", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Matthew Boulton", "title": "Mentioned together: 11 times", "to": "Robert Banks Jenkinson, 2nd Earl of Liverpool", "value": 3.3, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Jonas Dryander", "title": "Mentioned together: 3 times", "to": "Pierre Marie Auguste Broussonet", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dr. James Edward Smith", "title": "Mentioned together: 4 times", "to": "Paul Dietrich Giseke", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Sir Charles Blagden", "title": "Mentioned together: 4 times", "to": "Sir William Hamilton", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Knight", "title": "Mentioned together: 57 times", "to": "Thomas Andrew Knight", "value": 17.099999999999998, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dr. James Edward Smith", "title": "Mentioned together: 51 times", "to": "Sir James Smith", "value": 15.299999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Forster", "title": "Mentioned together: 13 times", "to": "Johann Reinhold Forster", "value": 3.9, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Jonas Dryander", "title": "Mentioned together: 9 times", "to": "Sir James Smith", "value": 2.6999999999999997, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "William Aiton", "title": "Mentioned together: 10 times", "to": "William Townsend Aiton", "value": 3.0, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Louis L\u0027H\u00e9ritier De Brutelle", "title": "Mentioned together: 7 times", "to": "LHRITIERDEBRUTELLE_Charles", "value": 2.1, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Captain John Hunter", "title": "Mentioned together: 7 times", "to": "Dr. John Hunter", "value": 2.1, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Lorenz Crell", "title": "Mentioned together: 5 times", "to": "Lorenz Florens Friedrich Von Crell", "value": 1.5, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Robert Brown", "title": "Mentioned together: 4 times", "to": "Sir James Smith", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Captain John Hunter", "title": "Mentioned together: 4 times", "to": "Sir Charles Blagden", "value": 1.2, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Jenkinson", "title": "Mentioned together: 3 times", "to": "William Pitt", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dr. James Edward Smith", "title": "Mentioned together: 3 times", "to": "Sir William Hamilton", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Adam Afzelius", "title": "Mentioned together: 3 times", "to": "Olof Swartz", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Charles Jenkinson", "title": "Mentioned together: 3 times", "to": "Matthew Boulton", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Adam Afzelius", "title": "Mentioned together: 3 times", "to": "Sir James Smith", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Olof Swartz", "title": "Mentioned together: 3 times", "to": "Sir James Smith", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Captain William Bligh", "title": "Mentioned together: 3 times", "to": "George Caley", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "John Lloyd", "title": "Mentioned together: 3 times", "to": "William Aiton", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Dr. Daniel Solander", "title": "Mentioned together: 3 times", "to": "John Lloyd", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "John Lloyd", "title": "Mentioned together: 3 times", "to": "Sir William Herschel", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Robert Brown", "title": "Mentioned together: 3 times", "to": "Sir Charles Blagden", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Sir James Smith", "title": "Mentioned together: 3 times", "to": "William Aiton", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Jonas Dryander", "title": "Mentioned together: 3 times", "to": "LHRITIERDEBRUTELLE_Charles", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "John King", "title": "Mentioned together: 3 times", "to": "Sir Charles Blagden", "value": 0.8999999999999999, "width": 1}, {"color": {"color": "rgba(255, 165, 0, 0.3)", "highlight": "#F28E2B"}, "dashes": true, "from": "Knight", "title": "Mentioned together: 3 times", "to": "Sir John Sinclair", "value": 0.8999999999999999, "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"borderWidth": 1, "borderWidthSelected": 2, "shadow": true}, "edges": {"smooth": {"type": "continuous", "forceDirection": "none"}}, "physics": {"forceAtlas2Based": {"gravitationalConstant": -50, "centralGravity": 0.01, "springLength": 200, "springConstant": 0.08, "damping": 0.4}, "minVelocity": 0.75, "solver": "forceAtlas2Based"}, "interaction": {"hover": true, "tooltipDelay": 100, "navigationButtons": true, "keyboard": true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

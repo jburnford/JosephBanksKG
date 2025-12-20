@@ -79,6 +79,12 @@
         .card.commodity a:hover {
             background: #f9a24d;
         }
+        .card.network a {
+            background: #59A14F;
+        }
+        .card.network a:hover {
+            background: #6cb663;
+        }
         .stats {
             margin-top: 50px;
             text-align: center;
@@ -145,8 +151,14 @@
         <p class="subtitle">Knowledge Graph Visualizations (1765-1820)</p>
 
         <div class="cards">
+            <div class="card network">
+                <h2>Network Graph</h2>
+                <p>Interactive force-directed network of Banks' top 120 correspondents. Drag nodes to explore, scroll to zoom. Shows both correspondence and co-mentions.</p>
+                <a href="correspondence_network.html">View Visualization</a>
+            </div>
+
             <div class="card">
-                <h2>Correspondence Network</h2>
+                <h2>Correspondence Flow</h2>
                 <p>Bi-directional Sankey showing the top 100 people who wrote to Banks and the top 100 people Banks wrote to, organized by decade.</p>
                 <a href="correspondence_sankey.html">View Visualization</a>
             </div>
