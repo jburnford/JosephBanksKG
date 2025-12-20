@@ -1,7 +1,168 @@
-<html>
-<head><meta charset="utf-8" /></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sir Joseph Banks Knowledge Graph Visualizations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #eee;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 28px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .card p {
+            color: #bbb;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .card a {
+            display: inline-block;
+            background: #4E79A7;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .card a:hover {
+            background: #5a8ac2;
+        }
+        .card.commodity a {
+            background: #F28E2B;
+        }
+        .card.commodity a:hover {
+            background: #f9a24d;
+        }
+        .stats {
+            margin-top: 50px;
+            text-align: center;
+            color: #888;
+        }
+        .stats h3 {
+            color: #aaa;
+            margin-bottom: 16px;
+            font-weight: normal;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: #888;
+        }
+    </style>
+</head>
 <body>
-    <div>                        <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.3.0.min.js" integrity="sha256-bO3dS6yCpk9aK4gUpNELtCiDeSYvGYnK7jFI58NQnHI=" crossorigin="anonymous"></script>                <div id="908c25fa-9bbd-4b7a-b74f-ab1e1a08d284" class="plotly-graph-div" style="height:2200px; width:1400px;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("908c25fa-9bbd-4b7a-b74f-ab1e1a08d284")) {                    Plotly.newPlot(                        "908c25fa-9bbd-4b7a-b74f-ab1e1a08d284",                        [{"arrangement":"snap","link":{"color":["rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(46, 134, 171, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)","rgba(241, 143, 1, 0.4)"],"source":[13,12,9,18,0,13,7,12,2,10,4,16,9,14,8,11,3,18,15,5,1,0,13,19,7,12,2,10,4,16,9,14,17,8,11,3,18,15,5,1,0,13,19,7,2,10,4,16,9,14,17,8,11,3,18,5,1,0,6,19,7,9,17,3,6,20,21,21,21,21,21,22,22,22,22,22,22,22,22,22,22,22,22,22,22,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,25,25,25,25,25,25,25,26,26],"target":[20,21,21,21,21,21,21,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,25,25,25,25,43,46,29,27,43,34,46,39,30,32,33,44,45,29,41,28,36,27,43,34,42,30,32,37,33,40,44,45,38,29,41,28,36,27,31,43,35,34,42,30,32,37,33,40,45,38,29,28,36,27,31,35,32,37,40,38,29,27,31,35,27,35],"value":[16,7,1,1,22,4,8,12,19,28,2,6,5,4,21,2,8,6,8,6,76,88,3,2,20,9,21,2,36,1,17,14,4,11,12,32,2,12,20,35,22,2,4,7,13,1,8,8,8,6,6,2,15,12,1,14,3,26,36,2,1,2,5,1,4,2,1,9,5,1,3,2,16,4,5,8,5,1,21,4,15,15,82,4,13,6,31,14,7,17,7,3,4,13,19,7,49,2,36,9,2,5,15,3,27,20,8,8,6,2,3,15,44,3,25,5,9,13,3,3,1,6,44,43,13,5,1]},"node":{"color":["#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#2E86AB","#A23B72","#A23B72","#A23B72","#A23B72","#A23B72","#A23B72","#A23B72","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01","#F18F01"],"label":["\u2190 Sir Charles Blagden","\u2190 Pierre Marie Auguste Broussonet","\u2190 Benjamin, Count Von Rumford, Thompson","\u2190 Johann Friedrich, Blumenbach","\u2190 Charles; 1St Hawkesbury And 1St Of Liverpool Jenkinson","\u2190 Matthew Boulton","\u2190 Thomas Andrew Knight","\u2190 William Richard, Hamilton","\u2190 Giovanni Valentino Mattia Fabbroni","\u2190 Dr. William Roxburgh","\u2190 Charles Louis L'H\u00e9ritier De Brutelle","\u2190 James Mario Matra","\u2190 Abb\u00e9 Theodore Augustin Mann","\u2190 Thomas, Pennant","\u2190 East India Company","\u2190 Lorenz Florens Friedrich Von Crell","\u2190 Dr. James Edward Smith","\u2190 George Caley","\u2190 John 553Lloyd","\u2190 William Marsden","1760s","1770s","1780s","1790s","1800s","1810s","1820s","Sir Charles Blagden \u2192","Matthew Boulton \u2192","John 553Lloyd \u2192","Charles; 1St Hawkesbury And 1St Of Liverpool Jenkinson \u2192","Thomas Andrew Knight \u2192","Dr. James Edward Smith \u2192","East India Company \u2192","William Richard, Hamilton \u2192","William Marsden \u2192","Pierre Marie Auguste Broussonet \u2192","Dr. William Roxburgh \u2192","Johann Friedrich, Blumenbach \u2192","Charles Louis L'H\u00e9ritier De Brutelle \u2192","George Caley \u2192","Lorenz Florens Friedrich Von Crell \u2192","Benjamin, Count Von Rumford, Thompson \u2192","Thomas, Pennant \u2192","Giovanni Valentino Mattia Fabbroni \u2192","James Mario Matra \u2192","Abb\u00e9 Theodore Augustin Mann \u2192"],"line":{"color":"black","width":0.5},"pad":15,"thickness":20,"x":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.5,0.5,0.5,0.5,0.5,0.5,0.5,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],"y":[0.1,0.14210526315789473,0.1842105263157895,0.22631578947368422,0.26842105263157895,0.31052631578947365,0.3526315789473684,0.39473684210526316,0.4368421052631579,0.4789473684210527,0.5210526315789473,0.5631578947368421,0.6052631578947368,0.6473684210526316,0.6894736842105262,0.731578947368421,0.7736842105263158,0.8157894736842105,0.8578947368421053,0.9,0.1,0.23333333333333334,0.3666666666666667,0.5,0.6333333333333333,0.7666666666666666,0.9,0.1,0.14210526315789473,0.1842105263157895,0.22631578947368422,0.26842105263157895,0.31052631578947365,0.3526315789473684,0.39473684210526316,0.4368421052631579,0.4789473684210527,0.5210526315789473,0.5631578947368421,0.6052631578947368,0.6473684210526316,0.6894736842105262,0.731578947368421,0.7736842105263158,0.8157894736842105,0.8578947368421053,0.9]},"type":"sankey"}],                        {"template":{"data":{"histogram2dcontour":[{"type":"histogram2dcontour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"choropleth":[{"type":"choropleth","colorbar":{"outlinewidth":0,"ticks":""}}],"histogram2d":[{"type":"histogram2d","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"heatmap":[{"type":"heatmap","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"contourcarpet":[{"type":"contourcarpet","colorbar":{"outlinewidth":0,"ticks":""}}],"contour":[{"type":"contour","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"surface":[{"type":"surface","colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]}],"mesh3d":[{"type":"mesh3d","colorbar":{"outlinewidth":0,"ticks":""}}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"parcoords":[{"type":"parcoords","line":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolargl":[{"type":"scatterpolargl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"scattergeo":[{"type":"scattergeo","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterpolar":[{"type":"scatterpolar","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"scattergl":[{"type":"scattergl","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatter3d":[{"type":"scatter3d","line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermap":[{"type":"scattermap","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattermapbox":[{"type":"scattermapbox","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scatterternary":[{"type":"scatterternary","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"scattercarpet":[{"type":"scattercarpet","marker":{"colorbar":{"outlinewidth":0,"ticks":""}}}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"#2a3f5f"},"type":"carpet"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}],"barpolar":[{"marker":{"line":{"color":"#E5ECF6","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"pie":[{"automargin":true,"type":"pie"}]},"layout":{"autotypenumbers":"strict","colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"hovermode":"closest","hoverlabel":{"align":"left"},"paper_bgcolor":"white","plot_bgcolor":"#E5ECF6","polar":{"bgcolor":"#E5ECF6","angularaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"radialaxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"ternary":{"bgcolor":"#E5ECF6","aaxis":{"gridcolor":"white","linecolor":"white","ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","ticks":""},"caxis":{"gridcolor":"white","linecolor":"white","ticks":""}},"coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]]},"xaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"yaxis":{"gridcolor":"white","linecolor":"white","ticks":"","title":{"standoff":15},"zerolinecolor":"white","automargin":true,"zerolinewidth":2},"scene":{"xaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"yaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2},"zaxis":{"backgroundcolor":"#E5ECF6","gridcolor":"white","linecolor":"white","showbackground":true,"ticks":"","zerolinecolor":"white","gridwidth":2}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"geo":{"bgcolor":"white","landcolor":"#E5ECF6","subunitcolor":"white","showland":true,"showlakes":true,"lakecolor":"white"},"title":{"x":0.05},"mapbox":{"style":"light"}}},"title":{"font":{"size":20},"text":"Banks' Correspondence Flow: Top 100 Senders \u2192 Decades \u2192 Top 100 Recipients"},"font":{"size":10},"height":2200,"width":1400,"annotations":[{"font":{"size":14},"showarrow":false,"text":"\u003cb\u003eLetters TO Banks\u003c\u002fb\u003e","x":0.0,"xref":"paper","y":1.02,"yref":"paper"},{"font":{"size":14},"showarrow":false,"text":"\u003cb\u003eDecades\u003c\u002fb\u003e","x":0.5,"xref":"paper","y":1.02,"yref":"paper"},{"font":{"size":14},"showarrow":false,"text":"\u003cb\u003eLetters FROM Banks\u003c\u002fb\u003e","x":1.0,"xref":"paper","y":1.02,"yref":"paper"}]},                        {"displayModeBar": true, "scrollZoom": true, "responsive": true}                    )                };            </script>        </div>
+    <div class="container">
+        <h1>Sir Joseph Banks</h1>
+        <p class="subtitle">Knowledge Graph Visualizations (1765-1820)</p>
+
+        <div class="cards">
+            <div class="card">
+                <h2>Correspondence Network</h2>
+                <p>Bi-directional Sankey showing the top 100 people who wrote to Banks and the top 100 people Banks wrote to, organized by decade.</p>
+                <a href="correspondence_sankey.html">View Visualization</a>
+            </div>
+
+            <div class="card commodity">
+                <h2>Topics &amp; Trade</h2>
+                <p>Flow from decades through commodities (Plants, Seeds, Books, Leather, Metals) to geographic places mentioned in correspondence.</p>
+                <a href="viz_topics_commodity_sankey.html">View Visualization</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h3>Database Statistics</h3>
+            <div class="stat-row">
+                <div class="stat">
+                    <div class="stat-num">7,124</div>
+                    <div class="stat-label">Documents</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">6,441</div>
+                    <div class="stat-label">People</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">2,308</div>
+                    <div class="stat-label">Commodities</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">2,590</div>
+                    <div class="stat-label">Places</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Data from the Banks Archive GraphRAG Database<br>
+            <a href="https://github.com/jburnford/JosephBanksKG">GitHub Repository</a>
+        </footer>
+    </div>
 </body>
 </html>
