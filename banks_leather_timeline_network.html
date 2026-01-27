@@ -44,25 +44,30 @@
         .main-container {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 80px);
+            height: calc(100vh - 85px);
+            overflow: hidden;
         }
 
         .timeline-panel {
-            height: 35%;
+            height: 300px;
             min-height: 250px;
             background: rgba(255,255,255,0.02);
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
         }
 
         .network-panel {
             flex: 1;
             display: flex;
+            overflow: hidden;
+            min-height: 400px;
         }
 
         .network-container {
             flex: 1;
             position: relative;
             overflow: hidden;
+            min-height: 400px;
         }
 
         #timeline {
