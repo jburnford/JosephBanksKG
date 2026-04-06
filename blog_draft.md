@@ -36,6 +36,14 @@ The point was human review. By laying the transcriptions out chronologically alo
 
 Click "Fothergill publishes Kerr's terra japonica text" in 1773 and you see the beginning of the botanical thread. Click "Kyd's commercial pivot" in 1786 and you see the moment the Calcutta Botanic Garden turned toward industrial applications. The timeline makes the narrative arc visible in a way that a network graph alone cannot.
 
+## The Graph as Biographical Research
+
+Building the knowledge graph didn't just help me visualize connections I already knew about — it drove me to research ones I didn't. When you see a name appear as a node connected to Banks, to a commodity, to a place, you want to know who that person actually was. The graph made those gaps in my knowledge visible and urgent.
+
+Working through the catechu network, I ended up researching and connecting the biographies of all the key correspondents. Who was Robert Kyd before he ran the Calcutta Botanic Garden? What was Andrew Berry's relationship to the East India Company? How did Samuel Purkis come to be the tanner Banks trusted with experimental barks? The graph turned each name from a signature on a letter into a research question, and answering those questions thickened the graph further — adding institutional affiliations, career timelines, and connections between people that the letters alone didn't make explicit.
+
+This is the part of knowledge graph work that's hard to convey in a methods section. The graph isn't just a product of research — it's an engine for it. Each node you add raises questions that pull you deeper into the sources.
+
 ## From Graph to Visualization
 
 Once the data was reviewed and corrected, I used Claude Code to build two more interactive visualizations of the leather network.
