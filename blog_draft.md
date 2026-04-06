@@ -1,12 +1,12 @@
 # Building Knowledge Graphs for Historical Research — With Help From Claude Code
 
-*How a simple structured approach to 18th-century correspondence revealed networks, trade routes, and institutional connections that narrative reading alone would miss.*
+*How 181 letters about leather became a 495-node knowledge graph, and how Claude Code turned it into interactive visualizations I couldn't have built myself.*
 
 ---
 
-A few months ago I started building a knowledge graph around Sir Joseph Banks — the naturalist, President of the Royal Society, and arguably the most connected scientific figure in the late Georgian world. The dataset was modest: Warren Dawson's 1958 *Calendar of the Banks Letters* (nearly 7,000 entries), Neil Chambers' *Indian and Pacific Correspondence*, and 181 transcribed letters from the Sutro Library dealing with the British leather trade.
+In the late 18th century, Britain had a leather problem. The tanning industry depended on oak bark, supplies were tightening, and the quality of British leather was declining. Sir Joseph Banks — naturalist, President of the Royal Society, and the most connected scientific broker of the Georgian age — found himself at the centre of a sprawling effort to find botanical alternatives, drawing on correspondents from Calcutta to Parliament.
 
-What I want to share isn't the history itself (though the leather crisis story is fascinating). It's the method — and specifically, how building even a basic knowledge graph changes the way you see your sources, and how Claude Code turned out to be a surprisingly powerful tool for creating bespoke visualizations from that graph.
+I've been building a knowledge graph around this story, drawn primarily from 181 transcribed letters in the Sutro Library (1797-1817), supplemented by Warren Dawson's *Calendar of the Banks Letters* and Neil Chambers' *Indian and Pacific Correspondence*. What I want to share isn't the leather crisis itself (though it's a remarkable story). It's the method — how even a small, focused knowledge graph changes the way you see your sources, and how Claude Code turned out to be a surprisingly effective tool for creating bespoke visualizations from that graph.
 
 ## Why a Knowledge Graph?
 
@@ -14,9 +14,9 @@ Historians have always built mental models of who knew whom, what was discussed,
 
 A knowledge graph makes the implicit explicit. At its simplest, it's just structured triples: **Person → wrote to → Person**, **Letter → mentions → Commodity**, **Person → located in → Place**. Nothing fancy. No ontology committee required.
 
-For the Banks project, I ended up with a graph built from over 7,000 documents, covering around 700 correspondents (plus several hundred more people mentioned in the letters), thousands of commodity references, and places spanning Britain, India, continental Europe, and the Pacific. These aren't numbers that impress anyone working in data science. But for a single historical figure's correspondence network, they're rich enough to surface patterns that are genuinely hard to see through sequential reading.
+The leather network is a good example of how small can be powerful. It contains 275 people, 55 commodities, 119 places, and 46 institutions — 495 nodes in total, connected by relationships extracted from those 181 letters and their surrounding context. That's a modest dataset by any standard. But it's enough to see something you can't see by reading the letters sequentially.
 
-For instance: the leather crisis. Reading the Sutro letters one by one, you follow a narrative about tanning shortages and botanical alternatives. But when you structure those letters as a graph — connecting Banks to correspondents like William Roxburgh in Calcutta, to commodities like Indian tanning barks, to institutions like the East India Company and Parliament — you start to see the *system*. Banks wasn't just receiving letters about leather. He was the switchboard connecting Indian botanical research to British industrial policy, routing knowledge between people who would never otherwise have been in the same room.
+Reading the Sutro letters one by one, you follow a narrative about tanning shortages and botanical alternatives. When you structure those same letters as a graph — connecting Banks to William Roxburgh in Calcutta, to Samuel Purkis the tanner, to commodities like mimosa bark and terra japonica, to institutions like the East India Company and the House of Commons — you start to see the *system*. Banks wasn't just receiving letters about leather. He was the switchboard connecting Indian botanical research to British industrial policy, routing knowledge between people who would never otherwise have been in the same room. Robert Kyd at the Calcutta Botanic Garden, Charles Jenkinson in the House of Lords, Andrew Berry conducting tanning experiments — the graph reveals them as parts of a single coordinated network, with Banks at its centre.
 
 That's the kind of insight a knowledge graph gives you. Not a replacement for close reading, but a scaffold for it.
 
@@ -24,33 +24,29 @@ That's the kind of insight a knowledge graph gives you. Not a replacement for cl
 
 Once you have a knowledge graph, you want to *see* it. And this is where most researchers hit a wall.
 
-The standard tools — Gephi, Neo4j Bloom, various network analysis packages — are excellent for exploration. But they produce generic outputs. If you want a visualization that actually communicates your argument — that shows the temporal evolution of a network, or traces commodity flows from decades through trade goods to specific places — you need something custom.
+The standard tools — Gephi, Neo4j Bloom, various network analysis packages — are excellent for exploration. But they produce generic outputs. If you want a visualization that actually communicates your argument — that shows the temporal evolution of a network, or distinguishes people from commodities from institutions — you need something custom.
 
 Custom usually means learning D3.js, or finding a developer, or spending weeks wrestling with a JavaScript framework when you'd rather be reading letters. This is the gap where Claude Code turned out to be genuinely useful.
 
 ## Claude Code as a Visualization Partner
 
-Claude Code is Anthropic's agentic coding tool. You give it a task, it reads your files, writes code, runs it, and iterates until the output is right. I used it to build six interactive visualizations directly from my knowledge graph data, each tailored to a specific research question.
+Claude Code is Anthropic's agentic coding tool. You give it a task, it reads your files, writes code, runs it, and iterates until the output is right. I used it to build three different interactive visualizations of the leather network, each designed to answer a different question about the same underlying data.
 
-Here's what that looked like in practice:
+**The knowledge graph.** The first visualization is a force-directed network of all 495 nodes. People appear as blue circles, commodities as orange diamonds, places as green squares, institutions as purple hexagons — with Banks as a red node at the centre. You can filter to show only people, or people and commodities together, and click any node to see its connections and source information. This is the "big picture" view — where you see the overall shape of the network and notice clusters you hadn't expected.
 
-**The correspondence Sankey.** I wanted to show the top 100 people who wrote to Banks and the top 100 he wrote to, organized by decade. A standard network graph would have been unreadable at that scale. Instead, I described what I wanted — a bi-directional flow diagram with decades as the spine — and Claude Code produced a Plotly.js Sankey diagram. Teal flows on the left for letters received, orange on the right for letters sent. The result immediately shows that Banks' network exploded in the 1780s and 1790s, and you can see at a glance which correspondents persisted across decades versus those who appeared briefly.
+**The temporal network.** This was the more interesting experiment. I wanted to see how the leather network changed over time — who entered Banks' orbit in which years, how the conversation shifted from pure botany to industrial policy. Claude Code built a vis.js network with year nodes (1773 to 1810) anchored horizontally and people floating based on their letter connections. You can watch the network grow and shift as the crisis develops — the early years dominated by scientific contacts, the later years drawing in politicians and manufacturers.
 
-**The temporal network.** For the leather crisis specifically, I wanted to see how the network changed over time — who entered Banks' orbit in which years, how the conversation shifted from pure botany to industrial policy. Claude Code built a vis.js network with year nodes anchored horizontally and people floating based on their letter connections. You can watch the network grow and shift as the crisis develops.
-
-**The commodity flow diagram.** This one maps decades to commodities (Plants, Seeds, Books, Leather, Metals, and more) to geographic places. It answers a deceptively simple question: what was being discussed in connection with which places, and when? The answer revealed that "Plants" dominates early decades and connects overwhelmingly to India and Kew, while "Books" flows more toward continental Europe.
-
-**The combined timeline and knowledge graph.** This dual-pane visualization pairs a scrollable timeline of 45 key milestones with an interactive network graph. Click an event — say, "Roxburgh arrives in India" in 1781 — and the sidebar shows the relevant context and links to the underlying documents. This was the hardest to build manually but perhaps took the least time with Claude Code, because I could describe the two-panel layout conversationally and iterate on the interaction design.
+**The timeline.** This dual-pane visualization pairs a scrollable timeline of over 230 events with a sidebar showing details and original transcriptions. The events are grouped into categories — Science, Botanical, Economic, Material, Correspondence, Legislation — and span from the first *Encyclopaedia Britannica*'s craft description of tanning in 1771 through to the final letters in 1815. Click "Fothergill publishes Kerr's terra japonica text" in 1773 and you see the beginning of the botanical thread. Click "Kyd's commercial pivot" in 1786 and you see the moment the Calcutta Botanic Garden turned toward industrial applications. The timeline makes the narrative arc visible in a way that a network graph alone cannot.
 
 In every case, the workflow was the same: I described what I wanted to show, pointed Claude Code at the data, and refined the output through conversation. The visualizations are all self-contained HTML files — no server, no build step, no dependencies to manage. You can open them in a browser, host them on GitHub Pages, or email them to a colleague. Each one embeds its data directly, making them permanently portable.
 
 ## What I Learned
 
-**Start simple.** My knowledge graph is just entities and relationships extracted from structured catalogue data and letter transcriptions. I didn't build an OWL ontology or set up a triple store. A well-structured JSON file was enough to power every visualization in the project.
+**Small graphs are underrated.** You don't need thousands of nodes to gain insight. A 495-node graph built from 181 letters was enough to reshape my understanding of a forty-year episode in British industrial history. The constraint of a focused topic — leather, not all of Banks' correspondence — made the graph more interpretable, not less.
 
-**The graph is a thinking tool, not just an output.** Building the graph forced me to make decisions — is "leather" a commodity or a topic? Is the East India Company a person or an institution? — that sharpened my understanding of the material. Every modeling choice is an interpretive act.
+**The graph is a thinking tool, not just an output.** Building the graph forced me to make decisions — is "leather" a commodity or a topic? Is the East India Company a person or an institution? Does "My dear Lord" resolve to Charles Jenkinson? — that sharpened my understanding of the material. Every modelling choice is an interpretive act.
 
-**Bespoke beats generic.** A custom visualization built around your specific research question communicates more than any general-purpose network diagram. When you can design the visual encoding to match your argument — decades as a horizontal axis, commodity types as color-coded diamonds, flow width as letter count — the visualization becomes part of the scholarship, not just an illustration.
+**Bespoke beats generic.** A custom visualization built around your specific research question communicates more than any general-purpose network diagram. When you can design the visual encoding to match your argument — years as a horizontal axis, entity types as distinct shapes, node size reflecting documentary weight — the visualization becomes part of the scholarship, not just an illustration.
 
 **Claude Code lowers the barrier dramatically.** I'm not a JavaScript developer. I could not have built these visualizations from scratch in any reasonable timeframe. But I know what I want to show and why. Claude Code bridges that gap — you bring the research judgment, it handles the implementation. The conversation is iterative: you see a first draft, say "the nodes are too cluttered, can we add filtering?", and it revises. It feels less like programming and more like directing.
 
@@ -58,4 +54,4 @@ In every case, the workflow was the same: I described what I wanted to show, poi
 
 The visualizations are live at the [GitHub repository](https://github.com/jburnford/JosephBanksKG). The data sources are Warren Dawson's *[The Banks Letters: A Calendar](https://www.biodiversitylibrary.org/bibliography/153857)* (1958), Neil Chambers' *Indian and Pacific Correspondence of Sir Joseph Banks* (2008), and 181 transcribed letters from the Sutro Library.
 
-If you're a historian or researcher sitting on correspondence data, catalogue records, or any structured source material — consider building a knowledge graph. It doesn't have to be complicated. And if the visualization tools have been the bottleneck, they don't have to be anymore.
+If you're a historian or researcher sitting on correspondence data, catalogue records, or any structured source material — consider building a knowledge graph. It doesn't have to be big. And if the visualization tools have been the bottleneck, they don't have to be anymore.
