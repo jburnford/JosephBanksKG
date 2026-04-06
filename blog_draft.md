@@ -42,7 +42,7 @@ The leather network ended up with 275 people, 55 commodities, 119 places, and 46
 
 The graph showed that Banks was the switchboard connecting Indian botanical research to British industrial policy — routing knowledge between people who would never otherwise have been in the same room. Robert Kyd at the Calcutta Botanic Garden, Charles Jenkinson in the House of Lords, Samuel Purkis the tanner, Andrew Berry conducting tanning experiments — the graph reveals them as parts of a single coordinated network, with Banks at its centre.
 
-Working through the graph drove biographical research. I ended up tracing the lives of all the key correspondents. One discovery: Samuel Purkis and Humphry Davy were already friends before Davy began working with Banks. The graph showed that Purkis and Banks had been correspondents throughout the 1790s. That connection reframes how Davy entered Banks' orbit on the tanning question — not cold, but through someone Banks had trusted for years. You don't see that in any single letter. You see it in the graph.
+Working through the graph drove biographical research. I ended up tracing the lives of all the key correspondents. One surprise: Samuel Purkis and Humphry Davy were already friends before Davy began working with Banks, and Purkis had been corresponding with Banks throughout the 1790s. The graph didn't explain the connection — but it surfaced it, turning a name on a letter into a question worth investigating further.
 
 ## Visualizations as Research Tools
 
