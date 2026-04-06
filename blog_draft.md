@@ -42,6 +42,8 @@ Building the knowledge graph didn't just help me visualize connections I already
 
 Working through the catechu network, I ended up researching and connecting the biographies of all the key correspondents. Who was Robert Kyd before he ran the Calcutta Botanic Garden? What was Andrew Berry's relationship to the East India Company? How did Samuel Purkis come to be the tanner Banks trusted with experimental barks? The graph turned each name from a signature on a letter into a research question, and answering those questions thickened the graph further — adding institutional affiliations, career timelines, and connections between people that the letters alone didn't make explicit.
 
+One example: Samuel Purkis and Humphry Davy. The graph showed that Purkis and Banks were correspondents throughout the 1790s — well before Davy began his work with Banks. Researching their biographies revealed that Purkis and Davy were already friends. That connection reframes how Davy entered Banks' orbit on the tanning question: not cold, but through an existing relationship with someone Banks had been working with for years. You don't see that in any single letter. You see it in the graph.
+
 This is the part of knowledge graph work that's hard to convey in a methods section. The graph isn't just a product of research — it's an engine for it. Each node you add raises questions that pull you deeper into the sources.
 
 ## From Graph to Visualization
