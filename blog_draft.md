@@ -50,9 +50,11 @@ Claude Code also built the visualizations — and the most important one was a r
 
 The first was a dual-pane timeline: over 230 events on the left, with a sidebar showing details and the original transcriptions. By laying the transcriptions out chronologically, I could check the machine-generated text against my own reading. This is where I caught Gemini misreading the signature on an important letter from Robert Kyd. Without the timeline putting that letter in context — surrounded by other Kyd correspondence — I might not have noticed.
 
-From there, Claude Code built a force-directed knowledge graph (all 495 nodes, filterable by type) and a temporal network showing how the leather network grew and shifted between 1773 and 1810. All self-contained HTML files — no server, no build step. You can open them in a browser or host them on GitHub Pages.
+From there, Claude Code built a force-directed knowledge graph (all 495 nodes, filterable by type) and something I'm particularly excited about: a temporal network. Standard tools give you either a timeline or a network graph — not both. The temporal network fuses them. Years are fixed along the x-axis from left to right, and people float below, pulled toward the years when they wrote or received letters. The gravitational force reveals temporal patterns: you can see correspondents cluster around their most active periods, watch the network grow as the crisis develops, and spot the moment when the conversation shifted from botanical science to industrial policy. I don't think this kind of hybrid layout existed as an off-the-shelf option before — it emerged from describing what I wanted to see and letting Claude Code figure out the implementation.
 
-Because Claude Code builds through conversation — "the nodes are too cluttered, can we add filtering?" — each visualization matches the research argument rather than the defaults of a generic tool. Bespoke visualizations that would have required hiring a developer or learning D3.js are now part of the normal research workflow.
+All of these are self-contained HTML files — no server, no build step. You can open them in a browser or host them on GitHub Pages.
+
+This is the key point about bespoke visualizations. Because Claude Code builds through conversation — "the nodes are too cluttered, can we add filtering?", "can we anchor the years and let the people float?" — each visualization matches the research question rather than the defaults of a generic tool. You can invent new layouts that don't exist in any library's dropdown menu. Visualizations that would have required hiring a developer or learning D3.js are now part of the normal research workflow.
 
 ## Large: From Personal Graphs to Linked Open Data
 
